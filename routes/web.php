@@ -23,8 +23,12 @@ Route::match(['get', 'post'], '/login', [AuthController::class, 'login'])->name(
 Route::match(['get', 'post'], '/register', [AuthController::class, 'register'])->name('register');
 Route::post('/logout', [AuthController::class, 'logout']);
 
-//forgot password
 //activate email
+Route::match(['get', 'post'], '/verify', [AuthController::class, 'verify'])->name('verify');
+//forgot password
+Route::match(['get', 'post'],'/forgot-password', [AuthController::class, 'forgotPassword'])->name('forgot');
+//change password
+Route::match(['get', 'post'],'/change-password', [AuthController::class, 'changePassword'])->name('change-password');
 
 Route::middleware(['auth'])->group(function () {
     Route::get('/dashboard', [HomeController::class, 'index'])->name('dashboard');

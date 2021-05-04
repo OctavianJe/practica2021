@@ -3,9 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use App\Models\Role;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Validator;
 
 class AuthController extends Controller
 {
@@ -35,15 +37,34 @@ class AuthController extends Controller
 
     public function register(Request $request)
     {
-        //TODO
         if ($request->isMethod('post')) {
-            //validate request
-            //create user
-            // login user or send activate email
-            //redirected to dashboard/login
+            $rules = [
+                'name' => 'required',
+                'email' => 'required|email',
+                'password' => 'required'
+            ];
+
+            $validator = Validator::make($request->all(), $rules);
+
+            if (!$validator->passes()) {
+                return $this->returnInfo('Verify if all fields are filled');
+            }
+
+            $user = new User();
+
+            $user->name = $request->name;
+            $user->email = $request->email;
+            $user->password = Hash::make($request->password);
+            $user->role_id = Role::ROLE_USER;
+
+            $user->save();
+            return $this->returnInfo('Account has been created');
+
+            Auth::login($user);
+
+            return redirect('/dashboard');
         }
 
-        //return view register
-        return 'REGISTER';
+        return view('auth/register');
     }
 }
