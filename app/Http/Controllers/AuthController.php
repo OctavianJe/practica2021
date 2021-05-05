@@ -3,68 +3,197 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
-use App\Models\Role;
+use App\Services\AuthService;
+use Illuminate\Contracts\Foundation\Application;
+use Illuminate\Contracts\View\Factory;
+use Illuminate\Contracts\View\View;
+use Illuminate\Foundation\Auth\EmailVerificationRequest;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Routing\Redirector;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Password;
 
+/**
+ * Class AuthController
+ *
+ * @package App\Http\Controllers
+ */
 class AuthController extends Controller
 {
+    /** @var AuthService */
+    protected $service;
+
+    public function __construct()
+    {
+        $this->service = new AuthService();
+    }
+
+    /**
+     * @param  Request  $request
+     *
+     * @return Application|Factory|View|RedirectResponse|Redirector
+     */
     public function login(Request $request)
     {
         if ($request->isMethod('post')) {
-            $this->validate($request, [
+            $request->validate([
                 'email' => 'required|email',
                 'password' => 'required'
             ]);
 
-            $user = User::where('email', $request->input('email'))->first();
+            $user = $this->service->loginUser($request);
 
-            if (!$user || !Hash::check($request->input('password'), $user->password)) {
+            if (!$user) {
                 return redirect(route('login'))->withErrors([
                     'login' => 'Email or password is incorrect!'
                 ])->withInput();
             }
 
-            Auth::login($user);
+            return redirect(route('dashboard'));
+        }
 
-            return redirect('/dashboard');
+        if (Auth::check()) {
+            return redirect(route('dashboard'));
         }
 
         return view('auth/login');
     }
 
+    /**
+     * @param  Request  $request
+     *
+     * @return Application|Factory|View|RedirectResponse
+     */
     public function register(Request $request)
     {
         if ($request->isMethod('post')) {
-            $rules = [
+            $request->validate([
                 'name' => 'required',
-                'email' => 'required|email',
-                'password' => 'required'
-            ];
+                'email' => 'required|email|unique:users,email',
+                'password' => 'required|min:8|confirmed',
+                'terms' => 'accepted'
+            ]);
 
-            $validator = Validator::make($request->all(), $rules);
+            $this->service->registerUser($request);
 
-            if (!$validator->passes()) {
-                return $this->returnInfo('Verify if all fields are filled');
-            }
+            return redirect(route('verification.notice'));
+        }
 
-            $user = new User();
-
-            $user->name = $request->name;
-            $user->email = $request->email;
-            $user->password = Hash::make($request->password);
-            $user->role_id = Role::ROLE_USER;
-
-            $user->save();
-            return $this->returnInfo('Account has been created');
-
-            Auth::login($user);
-
-            return redirect('/dashboard');
+        if (Auth::check()) {
+            return redirect(route('dashboard'));
         }
 
         return view('auth/register');
+    }
+
+    /**
+     * @return Application|Factory|View
+     */
+    public function verifyNotice()
+    {
+        /** @var User $user */
+        $user = Auth::user();
+
+        if ($user->hasVerifiedEmail()) {
+            return redirect(route('dashboard'));
+        }
+
+        return view('auth.verifyEmail');
+    }
+
+    /**
+     * @param  EmailVerificationRequest  $request
+     *
+     * @return Application|RedirectResponse|Redirector
+     */
+    public function verifyEmail(EmailVerificationRequest $request)
+    {
+        $request->fulfill();
+
+        return redirect(route('dashboard'));
+    }
+
+    /**
+     * @return RedirectResponse
+     */
+    public function resendVerifyEmail(): RedirectResponse
+    {
+        /** @var User $user */
+        $user = Auth::user();
+
+        $user->sendEmailVerificationNotification();
+
+        return back()->with('resent', 'Verification link sent!');
+    }
+
+    /**
+     * @param  Request  $request
+     *
+     * @return Application|Factory|View|RedirectResponse
+     */
+    public function forgotPassword(Request $request)
+    {
+        if ($request->isMethod('post')) {
+            $request->validate(['email' => 'required|email']);
+
+            $status = Password::sendResetLink(
+                $request->only('email')
+            );
+
+            return $status === Password::RESET_LINK_SENT
+                ? back()->with(['status' => __($status)])
+                : back()->withErrors(['email' => __($status)]);
+        }
+
+        if (Auth::check()) {
+            return redirect(route('dashboard'));
+        }
+
+        return view('auth/forgotPassword');
+    }
+
+    /**
+     * @param  Request  $request
+     *
+     * @return Application|Factory|View|RedirectResponse
+     */
+    public function resetPassword(Request $request)
+    {
+        if ($request->isMethod('post')) {
+            $request->validate([
+                'token' => 'required',
+                'email' => 'required|email',
+                'password' => 'required|min:8|confirmed',
+            ]);
+
+            $status = $this->service->resetPassword($request);
+
+            return $status == Password::PASSWORD_RESET
+                ? redirect()->route('login')->with('status', __($status))
+                : back()->withErrors(['email' => [__($status)]]);
+        }
+
+        if (Auth::check()) {
+            return redirect(route('dashboard'));
+        }
+
+        return view('auth/recoverPassword');
+    }
+
+    /**
+     * @param  Request  $request
+     *
+     * @return Application|RedirectResponse|Redirector
+     */
+    public function logout(Request $request)
+    {
+        Auth::logout();
+
+        $request->session()->invalidate();
+
+        $request->session()->regenerateToken();
+
+        return redirect(route('login'));
     }
 }
