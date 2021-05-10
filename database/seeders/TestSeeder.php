@@ -22,7 +22,7 @@ class TestSeeder extends Seeder
     public function run()
     {
         User::factory()
-            ->count(50)
+            ->count(10)
             ->has(
                 Board::factory()
                     ->count(3)
