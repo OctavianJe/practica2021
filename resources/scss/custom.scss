@@ -1,1 +1,13 @@
 //CUSTOM CSS
+.hidden {
+    display: none;
+}
+
+.page-active {
+    color: #000;
+
+    &:hover {
+        background: #fff;
+        color: #000;
+    }
+}
