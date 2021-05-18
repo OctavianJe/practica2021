@@ -15,14 +15,4 @@ use Illuminate\Routing\Controller as BaseController;
 class Controller extends BaseController
 {
     use AuthorizesRequests, DispatchesJobs, ValidatesRequests;
-
-    /**
-     * Return information about statement.
-     * 
-     * @return string
-     */
-    protected function returnInfo($data = null)
-    {
-        return $this->$data;
-    }
 }

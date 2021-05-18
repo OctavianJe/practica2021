@@ -19,9 +19,9 @@ class CreateBoardUsersTable extends Migration
         Schema::create('board_user', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('board_id');
-            $table->foreign('board_id')->references('id')->onDelete("cascade");
+            $table->foreign('board_id')->references('id')->on('boards');
             $table->unsignedBigInteger('user_id');
-            $table->foreign('user_id')->references('id')->onDelete("cascade");
+            $table->foreign('user_id')->references('id')->on('users');
             $table->timestamps();
             $table->unique(['board_id', 'user_id']);
         });
