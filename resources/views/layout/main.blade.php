@@ -5,11 +5,11 @@
         <!-- Site wrapper -->
         <div class="wrapper">
 
-            @include('layout.navbar')
+        @include('layout.navbar')
 
-            @include('layout.sidebar')
+        @include('layout.sidebar')
 
-            <!-- Content Wrapper. Contains page content -->
+        <!-- Content Wrapper. Contains page content -->
             <div class="content-wrapper">
                 @yield('content')
             </div>

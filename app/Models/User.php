@@ -93,6 +93,20 @@ class User extends Authenticatable implements MustVerifyEmail
     ];
 
     /**
+     * Boot method
+     */
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::deleting(function ($board) {
+            $board->createdBoards()->delete();
+            $board->boardUsers()->delete();
+            $board->tasks()->update(['assignment' => null]);
+        });
+    }
+
+    /**
      * @return HasMany
      */
     public function createdBoards(): HasMany

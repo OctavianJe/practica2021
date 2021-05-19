@@ -42,6 +42,19 @@ class Board extends Model
     protected $table = 'boards';
 
     /**
+     * Boot method
+     */
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::deleting(function ($board) {
+            $board->boardUsers()->delete();
+            $board->tasks()->delete();
+        });
+    }
+
+    /**
      * @return BelongsTo
      */
     public function user(): BelongsTo
