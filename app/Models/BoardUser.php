@@ -34,6 +34,11 @@ class BoardUser extends Pivot
     /** @var string */
     protected $table = 'board_user';
 
+    protected $fillable = [
+        'user_id' ,
+        'board_id'
+    ];
+
     /**
      * @return BelongsTo
      */

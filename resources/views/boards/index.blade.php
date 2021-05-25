@@ -25,6 +25,14 @@
         <div class="card">
             <div class="card-header">
                 <h3 class="card-title">Boards list</h3>
+                <button class="btn btn-sm btn-primary"
+                type="button"
+                style="float:right"
+                data-toggle="modal"
+                data-target="#boardAddModal">
+              
+                Add board <i class="fas fa-plus-square"></i>
+                </button>
             </div>
 
             <div class="card-body">
@@ -107,6 +115,32 @@
         </div>
         <!-- /.card -->
 
+        <div class="modal fade" id="boardAddModal">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4 class="modal-title">Add board</h4>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="alert alert-danger hidden" id="boardAddAlert"></div>
+                        <div class="alert alert-success hidden" id="boardAddSuccess"></div>
+                        <div class="form-group">
+                            <label for="boardAddName">Name</label>
+                            <input type="text" class="form-control" id="boardAddName" placeholder="Name">
+                        </div>
+                    </div>
+                    <div class="modal-footer justify-content-between">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-primary" id="boardAddButton">Save changes</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
         <div class="modal fade" id="boardEditModal">
             <div class="modal-dialog">
                 <div class="modal-content">
@@ -118,6 +152,7 @@
                     </div>
                     <div class="modal-body">
                         <div class="alert alert-danger hidden" id="boardEditAlert"></div>
+                        <div class="alert alert-success hidden" id="boardEditSuccess"></div>
                         <input type="hidden" id="boardEditId" value="" />
                         <div class="form-group">
                             <label for="boardEditName">Name</label>
@@ -151,6 +186,7 @@
                     </div>
                     <div class="modal-body">
                         <div class="alert alert-danger hidden" id="boardDeleteAlert"></div>
+                        <div class="alert alert-success hidden" id="boardDeleteSuccess"></div>
                         <input type="hidden" id="boardDeleteId" value="" />
                         <p>Are you sure you want to delete: <span id="boardDeleteName"></span>?</p>
                     </div>

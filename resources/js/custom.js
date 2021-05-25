@@ -207,4 +207,62 @@ $(document).ready(function() {
         });
     });
 
+    $("#taskAddButton").on('click' , function() {
+        $("taskAddAlert").addClass('hidden');
+
+        const taskName =$("#taskAddName").val();
+        const taskDescription= $("#taskAddDescription").val();
+        const taskUser =$("#taskAddAssignment").val();
+        const taskStatus = $("#taskAddStatus").val();
+        const boardId = $('#currentBoardId').text();
+        
+        const data  = {
+            taskName , 
+            taskDescription ,
+            taskUser ,
+            taskStatus ,
+            boardId
+        }
+        
+        console.log(data);
+
+        $.ajax({
+            method: 'POST',
+            url: '/task/add'  ,
+            data , 
+            
+        }).done(function(response) {
+            if (response.error !== '') {
+                $('#taskAddAlert').text(response.error).removeClass('hidden');
+            } else {
+                window.location.reload();
+            }
+        });
+    })
+
+    $("#boardAddButton").on("click" ,function() {
+        $('#boardAddAlert').addClass('hidden');
+
+        const modal = $("#boardAddModal");
+        const modalNameInput = modal.find("#boardAddName").val();
+        const userId  = $(this).attr("userId");
+
+        const data = {
+            modalNameInput ,
+            userId 
+        }
+
+        $.ajax({
+            method:"POST" ,
+            url:"/board/add" ,
+            data,
+            
+        }).done(function(response) {
+            if (response.error !== '') {
+                $('#boardAddAlert').text(response.error).removeClass('hidden');
+            } else {
+                window.location.reload();
+            }
+        });
+    })
 });

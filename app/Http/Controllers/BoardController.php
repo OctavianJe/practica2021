@@ -143,6 +143,38 @@ class BoardController extends Controller
      *
      * @return Application|Factory|View|RedirectResponse
      */
+    public function addBoard(Request $request){
+
+        $inputBoardName = $request->get("modalNameInput");
+        $user_id = $request->get("userId");
+        $error = "";
+        $success = "";
+
+        if ($inputBoardName) {
+            $board = Board::Where("name"  ,$inputBoardName)->first();
+            if ($board) {
+                $error ="Already existent board with same name.";
+            }
+            else {
+               $success ="Created board successfully!";
+               $request->session()->flash("success" ,$success);
+               Board::create([
+                   "name"=>$inputBoardName ,
+                   "user_id" => $user_id
+               ]);
+           }
+        } else {
+            $error ="Error. Insert in board.";
+        }
+       
+       return response()->json(["error"=>$error , "success"=>$success]);
+   }
+
+    /**
+     * @param $id
+     *
+     * @return Application|Factory|View|RedirectResponse
+     */
     public function board($id)
     {
         /** @var User $user */
@@ -175,6 +207,7 @@ class BoardController extends Controller
         return view(
             'boards.view',
             [
+                'board_id' => $id,
                 'board' => $board,
                 'boards' => $boards,
                 'tasks' => $tasks,
@@ -250,5 +283,57 @@ class BoardController extends Controller
         }
 
         return response()->json(['error' => $error, 'success' => $success]);
+    }
+
+    /**
+     * @param $id
+     *
+     * @return JsonResponse
+     */
+    public function addTask(Request $request)
+    {
+        /** @var Task $task */
+        $task = Task::find($id);
+
+        /** @var User $user */
+        $user = Auth::user();
+
+        $error = '';
+        $success = '';
+
+        $task_name  = $request->get('taskName');
+        $task_desciption = $request->get('taskDescription');
+        $task_user = $request->get('taskUser');
+        $task_status = $request->get('taskStatus');
+        $board_id = $request->get('boardId');
+
+        if ($task_name && $task_desciption) {
+            $task = Task::Where("name" , $task_name)->first();
+            if ($task) {
+                $error = "Already existent task";
+            }
+            else {
+                Task::create([
+                    "name"=>$task_name  ,
+                    "description" => $task_desciption ,
+                    "assignment" => $task_user ,
+                    "status" => $task_status ,
+                    "board_id" => $board_id ,
+                ]);
+                
+                BoardUser::create([
+                    "user_id" => $task_user,
+                    "board_id" => $board_id
+                ]);
+
+                $success  = "Task created successfully";
+                $request->session()->flash('success' ,$success);
+            }
+        }
+        else {
+            $error = "Some fields are empty";
+        }
+
+        return response()->json(["error" => $error , "success" => $success]);
     }
 }

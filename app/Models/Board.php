@@ -41,6 +41,11 @@ class Board extends Model
     /** @var string */
     protected $table = 'boards';
 
+    protected $fillable =[
+        "name" ,
+        "user_id"
+    ];
+    
     /**
      * Boot method
      */
