@@ -6,6 +6,7 @@ use App\Models\Board;
 use App\Models\BoardUser;
 use App\Models\Task;
 use App\Models\User;
+use App\Services\BoardService;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Contracts\View\View;
@@ -29,28 +30,43 @@ class BoardController extends Controller
         /** @var User $user */
         $user = Auth::user();
 
-        $boards = Board::with(['user', 'boardUsers']);
+        $boardService = new BoardService();
 
-        if ($user->role === User::ROLE_USER) {
-            $boards = $boards->where(function ($query) use ($user) {
-                //Suntem in tabele de boards in continuare
-                $query->where('user_id', $user->id)
-                    ->orWhereHas('boardUsers', function ($query) use ($user) {
-                        //Suntem in tabela de board_users
-                        $query->where('user_id', $user->id);
-                    });
-            });
-        }
-
-        $boards = $boards->paginate(10);
+        $boards = $boardService->getBoards($user);
 
         return view(
             'boards.index',
             [
                 'boards' => $boards,
-                'userList' => User::select(['id', 'name'])->get()->toArray()
+                'userList' => User::select(['id', 'name'])->where('id', '!=', $user->id)->get()->toArray()
             ]
         );
+    }
+
+    /**
+     * @param  Request  $request
+     *
+     * @return JsonResponse
+     */
+    public function addBoard(Request $request): JsonResponse
+    {
+        /** @var User $user */
+        $user = Auth::user();
+
+        $error = '';
+        $success = '';
+
+        if ($request->has('name') && $request->get('name')) {
+            $boardService = new BoardService();
+
+            $board = $boardService->addBoard($request, $user->id);
+
+            $success = 'Board created';
+        } else {
+            $error = 'Please add a name to your board';
+        }
+
+        return response()->json(['error' => $error, 'success' => $success]);
     }
 
     /**

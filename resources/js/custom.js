@@ -50,6 +50,15 @@ $('#boardEditModal').on('shown.bs.modal', function(event) {
     modal.find('#boardEditUsers').trigger('change');
 });
 
+$('#boardAddModal').on('shown.bs.modal', function(event) {
+    let modal = $(this);
+
+    modal.find('#boardAddName').val('');
+
+    modal.find('#boardAddUsers').val([]);
+    modal.find('#boardAddUsers').trigger('change');
+});
+
 $('#boardDeleteModal').on('shown.bs.modal', function(event) {
     let button = $(event.relatedTarget); // Button that triggered the modal
     let board = button.data('board');
@@ -125,7 +134,33 @@ $(document).ready(function() {
         window.location.href = '/board/' + id;
     });
 
+    $('#boardAddUsers').select2();
     $('#boardEditUsers').select2();
+
+    $('#boardAddButton').on('click', function() {
+        $('#boardAddAlert').addClass('hidden');
+
+        let name = $('#boardAddName').val();
+        let boardUsersData = $('#boardAddUsers').select2('data');
+
+        let boardUsers = [];
+
+        boardUsersData.forEach(function(item) {
+            boardUsers.push(item.id);
+        });
+
+        $.ajax({
+            method: 'POST',
+            url: '/board/add',
+            data: {name, boardUsers}
+        }).done(function(response) {
+            if (response.error !== '') {
+                $('#boardAddAlert').text(response.error).removeClass('hidden');
+            } else {
+                window.location.reload();
+            }
+        });
+    });
 
     $('#boardEditButton').on('click', function() {
         $('#boardEditAlert').addClass('hidden');

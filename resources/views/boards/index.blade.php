@@ -25,14 +25,13 @@
         <div class="card">
             <div class="card-header">
                 <h3 class="card-title">Boards list</h3>
-                <button class="btn btn-sm btn-primary"
-                type="button"
-                style="float:right"
-                data-toggle="modal"
-                data-target="#boardAddModal">
-              
-                Add board <i class="fas fa-plus-square"></i>
-                </button>
+                <div style="float: right;">
+                    <button class="btn btn-sm btn-primary"
+                            type="button"
+                            data-toggle="modal"
+                            data-target="#boardAddModal">
+                        <i class="fas fa-plus"></i></button>
+                </div>
             </div>
 
             <div class="card-body">
@@ -126,10 +125,17 @@
                     </div>
                     <div class="modal-body">
                         <div class="alert alert-danger hidden" id="boardAddAlert"></div>
-                        <div class="alert alert-success hidden" id="boardAddSuccess"></div>
                         <div class="form-group">
                             <label for="boardAddName">Name</label>
                             <input type="text" class="form-control" id="boardAddName" placeholder="Name">
+                        </div>
+                        <div class="form-group">
+                            <label for="boardAddUsers">Board Users</label>
+                            <select class="select2bs4" multiple="multiple" data-placeholder="Select board users" id="boardAddUsers" style="width: 100%;">
+                                @foreach ($userList as $user)
+                                    <option value="{{$user['id']}}">{{$user['name']}}</option>
+                                @endforeach
+                            </select>
                         </div>
                     </div>
                     <div class="modal-footer justify-content-between">
@@ -139,7 +145,6 @@
                 </div>
             </div>
         </div>
-
 
         <div class="modal fade" id="boardEditModal">
             <div class="modal-dialog">
@@ -152,7 +157,6 @@
                     </div>
                     <div class="modal-body">
                         <div class="alert alert-danger hidden" id="boardEditAlert"></div>
-                        <div class="alert alert-success hidden" id="boardEditSuccess"></div>
                         <input type="hidden" id="boardEditId" value="" />
                         <div class="form-group">
                             <label for="boardEditName">Name</label>
@@ -186,7 +190,6 @@
                     </div>
                     <div class="modal-body">
                         <div class="alert alert-danger hidden" id="boardDeleteAlert"></div>
-                        <div class="alert alert-success hidden" id="boardDeleteSuccess"></div>
                         <input type="hidden" id="boardDeleteId" value="" />
                         <p>Are you sure you want to delete: <span id="boardDeleteName"></span>?</p>
                     </div>

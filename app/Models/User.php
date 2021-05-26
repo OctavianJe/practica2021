@@ -29,6 +29,7 @@ use Illuminate\Support\Carbon;
  * @property string|null $remember_token
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
+ * @property string|null $api_token
  * @property-read Collection|BoardUser[] $boardUsers
  * @property-read Collection|Board[] $boards
  * @property-read Collection|Board[] $createdBoards
@@ -81,6 +82,7 @@ class User extends Authenticatable implements MustVerifyEmail
     protected $hidden = [
         'password',
         'remember_token',
+        'email_verified_at'
     ];
 
     /**

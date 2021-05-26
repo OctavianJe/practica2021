@@ -41,6 +41,7 @@ Route::middleware(['verified'])->group(function () {
     });
 
     Route::get('/boards', [BoardController::class, 'boards'])->name('boards.all');
+    Route::post('/board/add', [BoardController::class, 'addBoard'])->name('boards.add');
     Route::post('/board/update/{id}', [BoardController::class, 'updateBoard'])->name('boards.update');
     Route::post('/board/delete/{id}', [BoardController::class, 'deleteBoard'])->name('boards.delete');
     Route::post('/board/add' ,[BoardController::class , "addBoard"])->name("board.add");
